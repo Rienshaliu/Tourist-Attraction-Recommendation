@@ -8,9 +8,14 @@ import time
 from browser import Browser
 from time import sleep
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 
 filepath = "./output"
 f = open(filepath, 'w', encoding="utf-8")
+filepath1 = "./login"
+f1 = open(filepath1, 'r', encoding="utf-8")
 
 class InstagramUser:
     def __init__(self, user_id, username=None, bio=None, followers_count=None, following_count=None, is_private=False, user_picture=None):
@@ -47,12 +52,18 @@ def get_profile_information(data):
 
 if __name__ == '__main__':
     
+    login_data = f1.read()
+    print(login_data)
+    login = []
+    login = re.split(' ',login_data)
+    username = login[0]
+    password = login[1]
     tag = "jojoxdaily"
     
     quote_page = "https://www.instagram.com/%s/"%tag
-    
+    base_url = "https://www.instagram.com"
     browser = Browser()
-    
+    '''
     browser.get(quote_page)
     signin_x_btn = browser.find_one('._5gt5u')
     if signin_x_btn:
@@ -63,15 +74,33 @@ if __name__ == '__main__':
         browser.scroll_down()
         browser.js_click(signin_x_btn)
 
-    more_btn = browser.find_one('._1cr2e._epyes')
+    more_btn = browser.find_one('._l8p4s')
     
-    more_btn.click()
+    more_btn.click()'''
+    browser.get(base_url+'/accounts/login/')
+    sleep(2)
+    username_input = WebDriverWait(browser.driver, 5).until(
+        EC.presence_of_element_located((By.NAME, 'username'))
+    )
+    username_input.send_keys(username)
+    # Input password
+    password_input = WebDriverWait(browser.driver, 5).until(
+        EC.presence_of_element_located((By.NAME, 'password'))
+    )
+    password_input.send_keys(password)
+    # Submit
+    password_input.submit()
+    print("")
+    WebDriverWait(browser.driver, 60).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='/explore/']"))
+    )
+    browser.get(quote_page)
 
     ele_posts = []
-    ele_posts = browser.find('._cmdpi ._mck9w')
+    ele_posts = browser.find('._mck9w')
     while len(ele_posts) < 36:
         browser.scroll_down()
-        ele_posts = browser.find('._cmdpi ._mck9w')
+        ele_posts = browser.find('._mck9w')
         #print(len(ele_posts))
     pageSource = browser.driver.page_source
     #print(len(ele_posts))
@@ -84,21 +113,19 @@ if __name__ == '__main__':
     pprint(vars(user_profile))
     #f.write("%s"%shared_data)
     
-    
-    rows = response.find_all('div', '_70iju')
+    #sleep(800)
+    rows = browser.find('._6d3hm._mnav9')
     links = []
     for row in rows:
-        posts = row.find_all('a')
+        posts = row.find_elements_by_tag_name('a')
         for pt in posts:
-            links.append(pt.attrs['href'])
+            links.append(pt.get_attribute('href'))
     
-    #f.write("%s"%links)
     print(len(links))
     
-    #print("//a[@href="+"'"+links[0]+"'"+"]")
     for j in range(0, len(links)):
-    
-        browser.driver.find_element_by_xpath("//a[@href="+"'"+links[j]+"'"+"]").click()
+        variable = re.sub(base_url, "", links[j])
+        browser.driver.find_element_by_xpath("//a[@href='%s']"%variable).click()
         sleep(2)
         location = browser.find('._q8ysx._6y8ij')
         if location:
@@ -108,7 +135,7 @@ if __name__ == '__main__':
             imgs = browser.find('._2di5p')
             if imgs:
                 img_url = imgs[len(imgs)-1].get_attribute('src')
-                f.write("img_url: %s"%img_url)
+                f.write("\nimg_url: %s"%img_url)
             
             taged_people = browser.find('._n1lhu._4dsc8')
             if taged_people:
@@ -152,6 +179,7 @@ if __name__ == '__main__':
         #sleep(800)
         close_btn = browser.find_one('._dcj9f')
         close_btn.click()
+        sleep(2)
         contents = browser.find('._4rbun')
         content = contents[j].find_element_by_tag_name('img').get_attribute('alt')
         f.write("\ncontent: %s"%content)
