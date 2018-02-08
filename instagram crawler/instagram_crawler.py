@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
     ele_posts = []
     ele_posts = browser.find('._mck9w')
-    while len(ele_posts) < 36:
+    while len(ele_posts) < 24:
         browser.scroll_down()
         ele_posts = browser.find('._mck9w')
         #print(len(ele_posts))
@@ -128,6 +128,7 @@ if __name__ == '__main__':
         browser.driver.find_element_by_xpath("//a[@href='%s']"%variable).click()
         sleep(2)
         location = browser.find('._q8ysx._6y8ij')
+        imgs = browser.find('._2di5p')
         if location:
             location_url = location[0].get_attribute('href')
             f.write("\nlocation_url: %s"%location_url)
@@ -143,35 +144,6 @@ if __name__ == '__main__':
                 for p in taged_people:
                     taged_users_url.append(p.get_attribute('href'))
                 f.write("\ntaged_users_url: %s"%taged_users_url)
-            
-            like = browser.find('._nzn1h')
-            if like:
-                likes = like[0].find_element_by_tag_name('span').text
-                f.write("\nlikes: %s"%likes)
-            
-            ele_num_comments = browser.find_one('._m3m1c._1s3cd')
-            num_comments = 0
-            while ele_num_comments:
-                obj = ele_num_comments
-                try:
-                    obj = obj.find_element_by_tag_name('span')
-                except NoSuchElementException:
-                    obj =  None
-                if obj:
-                    num_comments = obj.text
-                    break
-                else :
-                    ele_num_comments.click()
-                    ele_num_comments = browser.find_one('._m3m1c._1s3cd')
-            
-            comments = []
-            ele_comments = browser.find('._ezgzd')
-            for i in range(1, len(ele_comments)):
-                comments.append(ele_comments[i].find_element_by_tag_name('span').text)
-            f.write("\ncomments: %s"%comments)
-            if num_comments == 0:
-                num_comments = len(ele_comments)-1
-            f.write("\nnum_comments: %s"%num_comments)
             
             date_time = browser.find_one('._p29ma._6g6t5').get_attribute('datetime')
             f.write("\ndate_time: %s"%date_time)
