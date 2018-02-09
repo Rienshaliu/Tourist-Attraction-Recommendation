@@ -17,6 +17,7 @@ from operator import itemgetter
 from collections import OrderedDict
 
 locations = defaultdict(int)
+taged_people_list = defaultdict(int)
 
 post_id = 0
 
@@ -112,6 +113,7 @@ if __name__ == '__main__':
 
     ele_posts = []
     ele_posts = browser.find('._mck9w')
+    
     while len(ele_posts) < 12:
         browser.scroll_down()
         ele_posts = browser.find('._mck9w')
@@ -138,8 +140,8 @@ if __name__ == '__main__':
     
     print(len(links))
     
-    #for j in range(0, len(links)):
-    for j in range(0, 3):
+    for j in range(0, len(links)):
+    #for j in range(0, 10):
         
         contents = browser.find('._4rbun')
         content = contents[j].find_element_by_tag_name('img').get_attribute('alt')
@@ -170,9 +172,10 @@ if __name__ == '__main__':
                 
                 taged_people = browser.find('._n1lhu._4dsc8')
                 if taged_people:
-                    taged_users_url = []
+                    #taged_users_url = []
                     for p in taged_people:
-                        taged_users_url.append(p.get_attribute('href'))
+                        taged_users_url=p.get_attribute('href')
+                        taged_people_list[taged_users_url]+=1
                     #f.write("\ntaged_users_url: %s"%taged_users_url)
                 '''
                 date_time = browser.find_one('._p29ma._6g6t5').get_attribute('datetime')
@@ -181,6 +184,12 @@ if __name__ == '__main__':
                 post_file.close()
                 post_id+=1
                 
+            if len(locations) >= 100 or j == len(links)-1:
+                for key in taged_people_list:
+                    taged_users = re.sub(base_url, "", key)
+                    taged_users = taged_users.replace("/", "")
+                    user_file.write("%s %s\n"%(tag, taged_users))
+                break
             #sleep(800)
             close_btn = browser.find_one('._dcj9f')
             close_btn.click()
