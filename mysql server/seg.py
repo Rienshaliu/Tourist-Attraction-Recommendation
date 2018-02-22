@@ -8,7 +8,7 @@ from collections import OrderedDict
 
 words = defaultdict(int)
 
-filepath = "post1"
+filepath = "post0"
 f = open(filepath, 'r', encoding="utf-8")
 
 jieba.suggest_freq("可愛", True)

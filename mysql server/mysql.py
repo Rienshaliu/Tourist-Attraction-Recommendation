@@ -7,12 +7,11 @@ db = MySQLdb.connect("localhost","testuser","test123","testdb" )
 cursor = db.cursor()
 
 # Prepare SQL query to INSERT a record into the database.
-sql = """CREATE TABLE post(
-		id INT NOT NULL AUTO_INCREMENT,
-		post_url VARCHAR(255),
-		location VARCHAR(255),
-		content TEXT,
-		PRIMARY KEY(id))"""
+sql = """CREATE TABLE POST(
+		ID INT,
+		POST_URL VARCHAR(255),
+		LOCATION VARCHAR(255),
+		CONTENT TEXT)"""
 try:
    # Execute the SQL command
    cursor.execute(sql)
