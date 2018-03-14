@@ -21,5 +21,17 @@ except:
    # Rollback in case there is any error
    db.rollback()
 
+sql = """CREATE TABLE TRAINING(
+		ID INT,
+		SEG_CONTENT TEXT)"""
+try:
+   # Execute the SQL command
+   cursor.execute(sql)
+   # Commit your changes in the database
+   db.commit()
+except:
+   # Rollback in case there is any error
+   db.rollback()
+
 # disconnect from server
 db.close()

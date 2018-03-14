@@ -77,14 +77,25 @@ while post_id <= 3:
         post_content = post_content + key + ','
     #print(post_content)
     # Prepare SQL query to INSERT a record into the database.
-    sql = "INSERT INTO POST VALUES ('%d', '%s', '%s', '%s')"%(post_id, post_url, location, post_content)
+    sql = "INSERT INTO POST VALUES ('%d', '%s', '%s', '%s')"%(post_id, post_url, location, content)
     try:
         # Execute the SQL command
         cursor.execute(sql)
         # Commit your changes in the database
         db.commit()
     except:
-        print("--------------")
+        print("post--------------")
+        # Rollback in case there is any error
+        db.rollback()
+
+    sql = "INSERT INTO TRAINING VALUES ('%d', '%s')"%(post_id, post_content)
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+        # Commit your changes in the database
+        db.commit()
+    except:
+        print("training--------------")
         # Rollback in case there is any error
         db.rollback()
     
