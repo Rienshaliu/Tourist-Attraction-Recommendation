@@ -20,11 +20,11 @@ from collections import OrderedDict
 locations = defaultdict(int)
 taged_people_list = defaultdict(int)
 
-post_id = 597
+post_id = 1875
 
 num_locations = 50
 
-userid = 7
+userid = 29
 userpath = "./user/user%d"%userid
 user_file = open(userpath, 'w', encoding="utf-8")
 
@@ -33,6 +33,8 @@ img_file = open(imgpath, 'w', encoding="utf-8")
 
 loginpath = "./login"
 login_file = open(loginpath, 'r', encoding="utf-8")
+
+file = open("data", 'w', encoding="utf-8")
 
 class InstagramUser:
     def __init__(self, user_id, username=None, bio=None, followers_count=None, following_count=None, is_private=False, user_picture=None):
@@ -75,26 +77,13 @@ if __name__ == '__main__':
     login = re.split(' ',login_data)
     username = login[0]
     password = login[1]
-    tag = "bonnie60536"
+    tag = "__ieat__"
     img_file.write(tag)
     
     quote_page = "https://www.instagram.com/%s/"%tag
     base_url = "https://www.instagram.com"
     browser = Browser()
     '''
-    browser.get(quote_page)
-    signin_x_btn = browser.find_one('._5gt5u')
-    if signin_x_btn:
-        signin_x_btn.click()
-
-    signin_x_btn = browser.find_one('._lilm5')
-    if signin_x_btn:
-        browser.scroll_down()
-        browser.js_click(signin_x_btn)
-
-    more_btn = browser.find_one('._l8p4s')
-    
-    more_btn.click()'''
     browser.get(base_url+'/accounts/login/')
     sleep(2)
     username_input = WebDriverWait(browser.driver, 5).until(
@@ -111,96 +100,39 @@ if __name__ == '__main__':
     print("")
     WebDriverWait(browser.driver, 60).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='/explore/']"))
-    )
+    )'''
     browser.get(quote_page)
-    '''
-    ele_posts = []
-    ele_posts = browser.find('._havey ._mck9w')
-    
-    while len(ele_posts) < 36:
-        browser.scroll_down()
-        ele_posts = browser.find('._havey ._mck9w')
-        print(len(ele_posts))'''
-    
-    '''pageSource = browser.driver.page_source
-    #print(len(ele_posts))
-    #f.write("%s"%pageSource)
-    
+    pageSource = browser.driver.page_source
     response = BeautifulSoup(pageSource, "html.parser")
-    #f.write("%s"%response)
-    shared_data = extract_shared_data(response)
-    user_profile = get_profile_information(shared_data)
-    pprint(vars(user_profile))
-    #f.write("%s"%shared_data)'''
+    
     posts_list = defaultdict(int)
-    while len(locations) < num_locations:
+    
+    ele_posts = response.select('._mck9w')
+    index = 0
+    for ele_post in ele_posts:
+        #file.write("%s"%ele_posts[0])
+        pt = ele_post.find('a')
+        #file.write("%s"%pt)
         
-        #rows = browser.find('._6d3hm._mnav9')
-        ele_posts = browser.find('._havey ._mck9w')
-        
-        for ele_post in ele_posts:
-            print("locations: %d"%len(locations))
-            
-            try:
-                pt = ele_post.find_element_by_tag_name('a')
-            except StaleElementReferenceException:
-                break
-            pt = ele_post.find_element_by_tag_name('a')
-            
-            link = pt.get_attribute('href')
-            if posts_list[link] != 5:
-                posts_list[link] = 1
-        
-            if posts_list[link] == 1:
-                posts_list[link] = 5
-                content = ele_post.find_element_by_tag_name('img').get_attribute('alt')
-                prize = 0
-                if content.find('抽獎') >= 0:
-                    prize = 1
-                    print("======prize======")
-                if prize == 0:
-                    variable = re.sub(base_url, "", link)
-                    browser.driver.find_element_by_xpath("//a[@href='%s']"%variable).click()
-                    sleep(2)
-                    location = browser.find('._q8ysx._6y8ij')
-                    imgs = browser.find('._2di5p')
-                    if location and imgs:
-                        
-                        postpath = "./post/post%d"%post_id
-                        post_file = open(postpath, 'w', encoding="utf-8")
-                        post_file.write("萌萌\n")
-                        post_file.write("%s\n"%link)
-                        
-                        location_url = location[0].get_attribute('href')
-                        locations[location_url]+=1
-                        img_file.write("\n%s"%location_url)
-                        post_file.write("%s\n"%location_url)
-                        
-                        img_url = imgs[len(imgs)-1].get_attribute('src')
-                        img_file.write("\n%s"%img_url)
-                        
-                        taged_people = browser.find('._n1lhu._4dsc8')
-                        if taged_people:
-                            #taged_users_url = []
-                            for p in taged_people:
-                                taged_users_url=p.get_attribute('href')
-                                taged_people_list[taged_users_url]+=1
-                            #f.write("\ntaged_users_url: %s"%taged_users_url)
-                        '''
-                        date_time = browser.find_one('._p29ma._6g6t5').get_attribute('datetime')
-                        f.write("\ndate_time: %s"%date_time)'''
-                        post_file.write("%s"%content)
-                        post_file.close()
-                        post_id+=1
-                        
-                        if len(locations) >= num_locations:
-                            break
-                    #sleep(800)
-                    close_btn = browser.find_one('._dcj9f')
-                    close_btn.click()
-                    sleep(2)
-        browser.scroll_down()
-    for key in taged_people_list:
-        taged_users = re.sub(base_url, "", key)
-        taged_users = taged_users.replace("/", "")
-        user_file.write("%s %s\n"%(tag, taged_users))
+        link = pt.get('href')
+        if posts_list[link] != 5:
+            posts_list[link] = 1
+    
+        if posts_list[link] == 1:
+            posts_list[link] = 5
+            content = ele_post.find('img').get('alt')
+            #file.write("%s"%content)
+            prize = 0
+            if content.find('抽獎') >= 0:
+                prize = 1
+                print("======prize======")
+            if prize == 0:
+                variable = re.sub(base_url, "", link)
+                browser.driver.find_element_by_xpath("//a[@href='%s']"%variable).click()
+                sleep(2)
+                postSource = browser.driver.page_source
+                post_response = BeautifulSoup(postSource, "html.parser")
+                location = browser.find('._6y8ij')
+        print(index)
+        index += 1
+
