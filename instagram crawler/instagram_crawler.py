@@ -132,7 +132,11 @@ if __name__ == '__main__':
                 sleep(2)
                 postSource = browser.driver.page_source
                 post_response = BeautifulSoup(postSource, "html.parser")
-                location = browser.find('._6y8ij')
+                location = post_response.find('a', class_='_6y8ij')
+                file.write("%s"%location)
+				
+                browser.find_one('._dcj9f').click()
+                sleep(2)
         print(index)
         index += 1
 
