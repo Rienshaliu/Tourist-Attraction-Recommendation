@@ -20,11 +20,11 @@ from collections import OrderedDict
 locations = defaultdict(int)
 taged_people_list = defaultdict(int)
 
-post_id = 1875
+post_id = 1976
 
 num_locations = 50
 
-userid = 29
+userid = 31
 userpath = "./user/user%d"%userid
 user_file = open(userpath, 'w', encoding="utf-8")
 
@@ -71,13 +71,13 @@ def get_profile_information(data):
 
 if __name__ == '__main__':
     
-    login_data = login_file.read()
+    '''login_data = login_file.read()
     print(login_data)
     login = []
     login = re.split(' ',login_data)
     username = login[0]
-    password = login[1]
-    tag = "__ieat__"
+    password = login[1]'''
+    tag = "enjoylifesun"
     img_file.write(tag)
     
     quote_page = "https://www.instagram.com/%s/"%tag
@@ -102,41 +102,74 @@ if __name__ == '__main__':
         EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='/explore/']"))
     )'''
     browser.get(quote_page)
-    pageSource = browser.driver.page_source
-    response = BeautifulSoup(pageSource, "html.parser")
     
     posts_list = defaultdict(int)
-    
-    ele_posts = response.select('._mck9w')
-    index = 0
-    for ele_post in ele_posts:
-        #file.write("%s"%ele_posts[0])
-        pt = ele_post.find('a')
-        #file.write("%s"%pt)
+    while len(locations) < num_locations:
+        pageSource = browser.driver.page_source
+        response = BeautifulSoup(pageSource, "html.parser")
+        ele_posts = response.select('._mck9w')
+        for ele_post in ele_posts:
+            print("locations: %d"%len(locations))
+            
+            pt = ele_post.find('a')
+            
+            link = pt.get('href')
+            if posts_list[link] != 5:
+                posts_list[link] = 1
         
-        link = pt.get('href')
-        if posts_list[link] != 5:
-            posts_list[link] = 1
-    
-        if posts_list[link] == 1:
-            posts_list[link] = 5
-            content = ele_post.find('img').get('alt')
-            #file.write("%s"%content)
-            prize = 0
-            if content.find('抽獎') >= 0:
-                prize = 1
-                print("======prize======")
-            if prize == 0:
-                variable = re.sub(base_url, "", link)
-                browser.driver.find_element_by_xpath("//a[@href='%s']"%variable).click()
-                sleep(2)
-                postSource = browser.driver.page_source
-                post_response = BeautifulSoup(postSource, "html.parser")
-                location = post_response.find('a', class_='_6y8ij')
-                file.write("%s"%location)
-				
-                browser.find_one('._dcj9f').click()
-                sleep(2)
-        print(index)
-        index += 1
+            if posts_list[link] == 1:
+                posts_list[link] = 5
+                content = ele_post.find('img').get('alt')
+                
+                prize = 0
+                if content.find('抽獎') >= 0:
+                    prize = 1
+                    print("======prize======")
+                if prize == 0:
+                    variable = re.sub(base_url, "", link)
+                    browser.driver.find_element_by_xpath("//a[@href='%s']"%variable).click()
+                    sleep(2)
+                    
+                    postSource = browser.driver.page_source
+                    post_response = BeautifulSoup(postSource, "html.parser")
+                    
+                    location = post_response.find('a', class_='_6y8ij')
+                    imgs = post_response.find_all('img', class_='_2di5p')
+                    #file.write("\n%s"%imgs[len(imgs)-1].get('src'))
+                    if location and imgs:
+                        
+                        postpath = "./post/post%d"%post_id
+                        post_file = open(postpath, 'w', encoding="utf-8")
+                        post_file.write("萌萌\n")
+                        post_file.write("%s\n"%link)
+                        
+                        location_url = location.get('href')
+                        locations[location_url]+=1
+                        img_file.write("\n%s"%location_url)
+                        post_file.write("%s\n"%location_url)
+                        
+                        img_url = imgs[len(imgs)-1].get('src')
+                        img_file.write("\n%s"%img_url)
+                        
+                        taged_people = post_response.find_all('a', class_='_n1lhu')
+                        if taged_people:
+                            #taged_users_url = []
+                            for p in taged_people:
+                                taged_users_url=p.get('href')
+                                taged_people_list[taged_users_url]+=1
+                            #f.write("\ntaged_users_url: %s"%taged_users_url)
+                        
+                        post_file.write("%s"%content)
+                        post_file.close()
+                        post_id+=1
+                        
+                        if len(locations) >= num_locations:
+                            break
+                    browser.find_one('._dcj9f').click()
+                    sleep(2)
+        browser.scroll_down()
+    for key in taged_people_list:
+        taged_users = re.sub(base_url, "", key)
+        taged_users = taged_users.replace("/", "")
+        user_file.write("%s %s\n"%(tag, taged_users))
 
